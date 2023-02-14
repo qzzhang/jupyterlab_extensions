@@ -1,3 +1,5 @@
+# Created by following the tutorial at:
+https://jupyterlab.readthedocs.io/en/stable/extension/extension_tutorial.html
 # firstextension
 
 [![Github Actions Status](https://github.com/qzzhang/jupyterlab_extensions/workflows/Build/badge.svg)](https://github.com/qzzhang/jupyterlab_extensions/actions/workflows/build.yml)
