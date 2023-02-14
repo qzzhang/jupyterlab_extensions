@@ -25,13 +25,13 @@ const plugin: JupyterFrontEndPlugin<void> = {
   activate: async (app: JupyterFrontEnd, palette: ICommandPalette) => {
     // activate: (app: JupyterFrontEnd, palette: ICommandPalette) => {
     console.log('JupyterLab extension firstextension is activated!');
-    // console.log('ICommandPalette:', palette);
 
     // Define a widget creator function,
     // then call it to make a new widget
     const newWidget = async () => {
       // Create a blank content widget inside of a MainAreaWidget
       const content = new Widget();
+      content.addClass('my-apodWidget');
       const widget = new MainAreaWidget({ content });
       widget.id = 'firstextension';
       widget.title.label = 'Astronomy Picture';
@@ -40,6 +40,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
       // Add an image element to the content
       const img = document.createElement('img');
       content.node.appendChild(img);
+
+      const summary = document.createElement('p');
+      content.node.appendChild(summary);
 
       // Get a random date string in YYYY-MM-DD format
       function randomDate() {
@@ -55,14 +58,27 @@ const plugin: JupyterFrontEndPlugin<void> = {
       const response = await fetch(
         `https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&date=${randomDate()}`
       );
-      const data = (await response.json()) as IAPODResponse;
-
-      if (data.media_type === 'image') {
-        // Populate the image
-        img.src = data.url;
-        img.title = data.title;
+      if (!response.ok) {
+        const data = await response.json();
+        if (data.error) {
+          summary.innerText = data.error.message;
+        } else {
+          summary.innerText = response.statusText;
+        }
       } else {
-        console.log('Random APOD was not a picture.');
+        const data = (await response.json()) as IAPODResponse;
+
+        if (data.media_type === 'image') {
+          // Populate the image
+          img.src = data.url;
+          img.title = data.title;
+          summary.innerText = data.title;
+          if (data.copyright) {
+            summary.innerText += ` (Copyright ${data.copyright})`;
+          }
+        } else {
+          summary.innerText = 'Random APOD fetched was not an image.';
+        }
       }
       return widget;
     };
